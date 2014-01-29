@@ -32,14 +32,14 @@ acceleration = a_zero;
 
 figure;
 %Calculating and drawing the pendulum
-for i=1:60
+for i=1:200
     clf;
-    airres = (0.5*(velocity^2)*area*air_constant);
+    airres = (0.5*(velocity^2)*area*air_constant)/mass;
     if(velocity < 0)
         airres = airres*-1
     end
     
-    acceleration = -(g/rope_length)*sin(theta)
+    acceleration = -(g/rope_length)*sin(theta);
     velocity = euler(tStep, velocity, acceleration) - airres;
     theta = euler(tStep, theta, velocity);
     
@@ -64,7 +64,7 @@ for i=1:60
     pause(1/100);
 end
 
-%% Projectile
+% Projectile
 
 xAcc = 0;
 yAcc = acceleration*sin(theta) - g;
@@ -80,21 +80,24 @@ for i = 1:100
     xVel = euler(tStep, xVel, xAcc); 
     yVel = euler(tStep, yVel, yAcc);
     
-    xPos = euler(tStep, xPos, xVel)
-    yPos = euler(tStep, yPos, yVel)
+    xPos = euler(tStep, xPos, xVel);
+    yPos = euler(tStep, yPos, yVel);
    
-    if(yPos < 0)
-        yPos = 0;
-        xVel = 0;
-        
+    %Ball+Ground
+    if(yPos < -0.5+radius)
+        yVel = -yVel*0.8;
+        yPos = -0.5+radius;
+        xVel = xVel*0.8
     end
+    
     %Drawing the spehere
     xp=radius*cos(circle_vec);
     yp=radius*sin(circle_vec);
     patch(xPos+xp,yPos+yp, [1,0,0]);
+        
     axis([-rope_length rope_length*2 -rope_length rope_length*2]);
     axis equal;
     grid on; 
     
-    pause(1/10);
+    pause(1/1000);
 end
