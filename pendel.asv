@@ -61,7 +61,7 @@ for i=1:100
     yp=radius*sin(circle_vec);
     patch(x+xp,y+yp, [1,0,0]);
     
-    %Drawing the Wall
+    %Wall
     wallXData=[wSize(1), wSize(1)+wWidth, wSize(1)+wWidth, wSize(2)-wWidth, wSize(2)-wWidth, wSize(2), wSize(2), wSize(1)];
     wallYData=[wSize(4), wSize(4), wSize(3)+wWidth,wSize(3)+wWidth, wSize(4),wSize(4), wSize(3), wSize(3)]; 
     patch(wallXData, wallYData, [0,0,0] );
@@ -110,7 +110,7 @@ for i = 1:400
     yp=radius*sin(circle_vec);
     patch(xPos+xp,yPos+yp, [1,0,0]);
     
-    %Drawing the wall
+    %Wall
     wallXData=[wSize(1), wSize(1)+wWidth, wSize(1)+wWidth, wSize(2)-wWidth, wSize(2)-wWidth, wSize(2), wSize(2), wSize(1)];
     wallYData=[wSize(4), wSize(4), wSize(3)+wWidth,wSize(3)+wWidth, wSize(4),wSize(4), wSize(3), wSize(3)]; 
     patch(wallXData, wallYData, [0,0,0] );
