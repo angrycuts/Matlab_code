@@ -32,7 +32,7 @@ acceleration = a_zero;
 
 figure;
 %Calculating and drawing the pendulum
-for i=1:200
+for i=1:100
     clf;
     airres = (0.5*(velocity^2)*area*air_constant)/mass;
     if(velocity < 0)
@@ -57,8 +57,8 @@ for i=1:200
     yp=radius*sin(circle_vec);
     patch(x+xp,y+yp, [1,0,0]);
     
-    axis([-rope_length rope_length*2 -rope_length rope_length*2]);
-    axis equal;
+    xlim([-2 2]);
+    ylim([-0.6 2]);
     grid on; 
     
     pause(1/100);
@@ -94,9 +94,9 @@ for i = 1:100
     xp=radius*cos(circle_vec);
     yp=radius*sin(circle_vec);
     patch(xPos+xp,yPos+yp, [1,0,0]);
-        
-    axis([-rope_length rope_length*2 -rope_length rope_length*2]);
-    axis equal;
+    
+    xlim([-2 2]);
+    ylim([-0.6 2]);
     grid on; 
     
     pause(1/1000);
