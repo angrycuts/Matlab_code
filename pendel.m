@@ -26,8 +26,13 @@ tStep = 0.01;
 
 % Initial angle = pi/4 & initial velocity & acceleration= 0
 theta_zero = -(pi/2);
-w_zero = 40;
+w_zero = 70;
 a_zero = 0;
+
+%Triangle
+sSTri = zeros(2,51);
+sSTri(1,:) = [1:0.01:1.5];
+sSTri(2,:) = 0.5;
 
 %% Pendulum
 theta = theta_zero;
@@ -43,8 +48,8 @@ for i=1:100
         airres = airres*-1
     end
     
-    acceleration = -(g/rope_length)*sin(theta);
-    velocity = euler(tStep, velocity, acceleration) - airres;
+    acceleration = -(g/rope_length)*sin(theta)
+    velocity = euler(tStep, velocity, acceleration)- airres;
     theta = euler(tStep, theta, velocity);
     
     %Position of the spehere
@@ -61,20 +66,25 @@ for i=1:100
     yp=radius*sin(circle_vec);
     patch(x+xp,y+yp, [1,0,0]);
     
+    %Drawing the triangle
+    triXData = [1.25, 1.5, 1];
+    triYData = [1, 0.5, 0.5];
+    patch(triXData, triYData, [0,1,0]);
+    
     %Drawing the Wall
     wallXData=[wSize(1), wSize(1)+wWidth, wSize(1)+wWidth, wSize(2)-wWidth, wSize(2)-wWidth, wSize(2), wSize(2), wSize(1)];
     wallYData=[wSize(4), wSize(4), wSize(3)+wWidth,wSize(3)+wWidth, wSize(4),wSize(4), wSize(3), wSize(3)]; 
-    patch(wallXData, wallYData, [0,0,0] );
+    patch(wallXData, wallYData, [1,0,0] );
     
     %WindowSize
     xlim([wSize(1) wSize(2)]);
     ylim([wSize(3) wSize(4)]);
     grid on; 
     
-    pause(1/100);
+    pause(1/10);
 end
 
-% Projectile
+%% Projectile
 
 xAcc = 0;
 yAcc = acceleration*sin(theta) - g;
@@ -87,12 +97,23 @@ yPos = y;
 for i = 1:400
     clf;
     
-    xVel = euler(tStep, xVel, xAcc); 
-    yVel = euler(tStep, yVel, yAcc);
+    xAirres = (0.5*(xVel^2)*area*air_constant)/mass;
+    yAirres = (0.5*(yVel^2)*area*air_constant)/mass;
+    
+    xVel = euler(tStep, xVel, xAcc) - xAirres; 
+    yVel = euler(tStep, yVel, yAcc) - yAirres;
     
     xPos = euler(tStep, xPos, xVel);
     yPos = euler(tStep, yPos, yVel);
-   
+    
+    %Calculating the bouncing angle
+    angle = atan(yVel/xVel);
+    
+    %Hit the triangle
+    if((xPos < 1.5)  && (xPos > 1.0) && (yPos > 0.5-radius) && yPos < 0.5)
+        
+    end
+
     %Hit Ground
     if(yPos < -0.5+radius)
         yVel = -yVel*0.8;
@@ -110,6 +131,11 @@ for i = 1:400
     yp=radius*sin(circle_vec);
     patch(xPos+xp,yPos+yp, [1,0,0]);
     
+    %Drawing the triangle
+    triXData = [1.25, 1.5, 1];
+    triYData = [1, 0.5, 0.5];
+    patch(triXData, triYData, [0,1,1]);
+
     %Drawing the wall
     wallXData=[wSize(1), wSize(1)+wWidth, wSize(1)+wWidth, wSize(2)-wWidth, wSize(2)-wWidth, wSize(2), wSize(2), wSize(1)];
     wallYData=[wSize(4), wSize(4), wSize(3)+wWidth,wSize(3)+wWidth, wSize(4),wSize(4), wSize(3), wSize(3)]; 
