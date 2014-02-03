@@ -9,26 +9,28 @@ clc
 wSize=[-2 2 -0.6 2];
 wWidth = 0.1;
 
-%Pendulum variables
-radius = [0.04 0.04];
+
+%Materials
+radius = [0.05 0.07];
 volume = [4*pi*(radius(1)^3)/3 4*pi*(radius(2)^3)/3];
 area = [4*pi*radius(1)^2 4*pi*radius(2)^2];
-density = [11340 11340];
+density = [11340 7870];
 mass = [density(1)*volume(1) density(2)*volume(2)];
-rope_length = [0.5 0.5];
+
+%Pendulum variables
+rope_length = [0.5 0.8];
 rope_width = 0.01; 
 circle_vec = 0:0.01:2*pi;
-x = [-1 1]
-y = [0 0]
 
 %Constants
 air_constant = [0.47 0.47];
 g = 9.82;
 tStep = 0.01;
+CRestitution =0.6;
 
 % Initial angle = pi/4 & initial velocity & acceleration= 0
-theta_zero = [-(pi/2) -(pi/2)];
-w_zero = [70 70];
+theta_zero = [-(pi/2) (pi/2)];
+w_zero = [70 -70];
 a_zero = [0 0];
 
 %% Pendulum
@@ -49,8 +51,8 @@ for i=1:100
         airres(2) = airres(2)*-1;
     end
     
-    acceleration = [-(g/rope_length(1))*sin(theta(1)) -(g/rope_length(2))*sin(theta(2))]
-    velocity = [euler(tStep, velocity(1), acceleration(1))- airres(1) euler(tStep, velocity(2), acceleration(2))- airres(2)];
+    acceleration = [-(g/rope_length(1))*sin(theta(1)), -(g/rope_length(2))*sin(theta(2))];
+    velocity = [euler(tStep, velocity(1), acceleration(1))-airres(1), euler(tStep, velocity(2), acceleration(2))- airres(2)];
     theta = [euler(tStep, theta(1), velocity(1)) euler(tStep, theta(2), velocity(2))];
     
     %Position of the spehere
@@ -67,7 +69,7 @@ for i=1:100
     xp = radius(1)*cos(circle_vec);
     xp2 = radius(2)*cos(circle_vec);
     yp = radius(1)*sin(circle_vec);
-    yp2 = radius(2)*sin(circle_vec)
+    yp2 = radius(2)*sin(circle_vec);
     patch(x(1)+xp,y(1)+yp, [1,0,0]);
     patch(x(2)+xp2,y(2)+yp2, [1,0,0]);
     
@@ -88,11 +90,13 @@ end
 % Projectile
 
 xAcc = [0 0];
-yAcc = [acceleration*sin(theta(1)) - g acceleration*sin(theta(2)) - g];
+yAcc = [acceleration(1)*sin(theta(1))-g, acceleration(2)*sin(theta(2)) - g];
 xVel = [velocity(1)*cos(theta(1)) velocity(2)*cos(theta(2))];
 yVel = [velocity(1)*sin(theta(1)) velocity(2)*sin(theta(2))];
 xPos = [x(1) x(2)];
 yPos = [y(1) y(2)];
+
+
 
 %calculating and drawing projectile
 for i = 1:400
@@ -101,8 +105,8 @@ for i = 1:400
     xAirres = [(0.5*(xVel(1)^2)*area(1)*air_constant(1))/mass(1),  (0.5*(xVel(2)^2)*area(2)*air_constant(2))/mass(2)];
     yAirres = [(0.5*(yVel(1)^2)*area(1)*air_constant(1))/mass(1),  (0.5*(yVel(2)^2)*area(2)*air_constant(2))/mass(2)];
     
-    xVel = [euler(tStep, xVel(1), xAcc(1)) - xAirres(1), euler(tStep, xVel(2), xAcc(2)) - xAirres(2)]; 
-    yVel = [euler(tStep, yVel(1), yAcc(1)) - yAirres(1), euler(tStep, yVel(2), yAcc(2)) - yAirres(2)];
+    xVel = [euler(tStep, xVel(1), xAcc(1)), euler(tStep, xVel(2), xAcc(2))]; 
+    yVel = [euler(tStep, yVel(1), yAcc(1)), euler(tStep, yVel(2), yAcc(2))];
     
     xPos = [euler(tStep, xPos(1), xVel(1)), euler(tStep, xPos(2), xVel(2))];
     yPos = [euler(tStep, yPos(1), yVel(1)), euler(tStep, yPos(2), yVel(2))];
@@ -110,7 +114,25 @@ for i = 1:400
     %Calculating the bouncing angle
     angle = [atan(yVel(1)/xVel(1)), atan(yVel(2)/xVel(2))];
     
+    %Collide 
+    if(sqrt((xPos(1) - xPos(2))^2 + (yPos(1) - yPos(2))^2) <= (radius(1)+radius(2))) 
+        
+    
+    %     Idée ett:
+%         xVel(1) = (xVel(1)*(mass(1) - mass(2)) + 2*mass(2)*xVel(2))/(mass(1)+mass(2));
+%         xVel(2) = (xVel(1)*(mass(2) - mass(1)) + 2*mass(1)*xVel(1))/(mass(1)+mass(2));
+%         
+%         yVel(1) = (yVel(1)*(mass(1) - mass(2)) + 2*mass(2)*yVel(2))/(mass(1)+mass(2));
+%         yVel(1) = (yVel(2)*(mass(2) - mass(1)) + 2*mass(1)*yVel(1))/(mass(1)+mass(2));
 
+    %     Idée två:
+          xVel(1) = (CRestitution*mass(2)*(xVel(2)-xVel(1)) + mass(1)*xVel(1) + mass(2)*xVel(2))/(mass(1) + mass(2));
+          xVel(2) = (CRestitution*mass(1)*(xVel(1)-xVel(2)) + mass(2)*xVel(2) + mass(1)*xVel(1))/(mass(2) + mass(1));
+            
+          yVel(1) = (CRestitution*mass(2)*(yVel(2)-yVel(1)) + mass(1)*yVel(1) + mass(2)*yVel(2))/(mass(1) + mass(2));
+          xVel(1) = (CRestitution*mass(1)*(yVel(1)-yVel(2)) + mass(2)*yVel(2) + mass(1)*yVel(1))/(mass(2) + mass(1));
+    end
+    
     %Hit Ground
     if(yPos(1) < -0.5+radius(1))
         yVel(1) = -yVel(1)*0.8;

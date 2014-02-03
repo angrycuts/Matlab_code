@@ -81,10 +81,10 @@ for i=1:100
     ylim([wSize(3) wSize(4)]);
     grid on; 
     
-    pause(1/10);
+    pause(1/1000);
 end
 
-%% Projectile
+% Projectile
 
 xAcc = 0;
 yAcc = acceleration*sin(theta) - g;
