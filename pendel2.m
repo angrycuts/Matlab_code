@@ -11,14 +11,14 @@ wWidth = 0.1;
 
 
 %Materials
-radius = [0.05 0.07];
+radius = [0.05 0.05];
 volume = [4*pi*(radius(1)^3)/3 4*pi*(radius(2)^3)/3];
 area = [4*pi*radius(1)^2 4*pi*radius(2)^2];
-density = [11340 7870];
+density = [11340 11340];
 mass = [density(1)*volume(1) density(2)*volume(2)];
 
 %Pendulum variables
-rope_length = [0.5 0.8];
+rope_length = [0.5 0.5];
 rope_width = 0.01; 
 circle_vec = 0:0.01:2*pi;
 
@@ -30,7 +30,7 @@ CRestitution =0.6;
 
 % Initial angle = pi/4 & initial velocity & acceleration= 0
 theta_zero = [-(pi/2) (pi/2)];
-w_zero = [70 -70];
+w_zero = [25 -25];
 a_zero = [0 0];
 
 %% Pendulum
@@ -84,7 +84,7 @@ for i=1:100
 
     grid on; 
     
-    pause(1/1000);
+    pause(1/100);
 end
 
 % Projectile
@@ -95,8 +95,6 @@ xVel = [velocity(1)*cos(theta(1)) velocity(2)*cos(theta(2))];
 yVel = [velocity(1)*sin(theta(1)) velocity(2)*sin(theta(2))];
 xPos = [x(1) x(2)];
 yPos = [y(1) y(2)];
-
-
 
 %calculating and drawing projectile
 for i = 1:400
@@ -110,27 +108,53 @@ for i = 1:400
     
     xPos = [euler(tStep, xPos(1), xVel(1)), euler(tStep, xPos(2), xVel(2))];
     yPos = [euler(tStep, yPos(1), yVel(1)), euler(tStep, yPos(2), yVel(2))];
-    
+
     %Calculating the bouncing angle
     angle = [atan(yVel(1)/xVel(1)), atan(yVel(2)/xVel(2))];
     
     %Collide 
     if(sqrt((xPos(1) - xPos(2))^2 + (yPos(1) - yPos(2))^2) <= (radius(1)+radius(2))) 
-        
-    
-    %     Idée ett:
+    %     Idée ett, funkar såååådär:
 %         xVel(1) = (xVel(1)*(mass(1) - mass(2)) + 2*mass(2)*xVel(2))/(mass(1)+mass(2));
 %         xVel(2) = (xVel(1)*(mass(2) - mass(1)) + 2*mass(1)*xVel(1))/(mass(1)+mass(2));
 %         
 %         yVel(1) = (yVel(1)*(mass(1) - mass(2)) + 2*mass(2)*yVel(2))/(mass(1)+mass(2));
 %         yVel(1) = (yVel(2)*(mass(2) - mass(1)) + 2*mass(1)*yVel(1))/(mass(1)+mass(2));
 
-    %     Idée två:
-          xVel(1) = (CRestitution*mass(2)*(xVel(2)-xVel(1)) + mass(1)*xVel(1) + mass(2)*xVel(2))/(mass(1) + mass(2));
-          xVel(2) = (CRestitution*mass(1)*(xVel(1)-xVel(2)) + mass(2)*xVel(2) + mass(1)*xVel(1))/(mass(2) + mass(1));
-            
-          yVel(1) = (CRestitution*mass(2)*(yVel(2)-yVel(1)) + mass(1)*yVel(1) + mass(2)*yVel(2))/(mass(1) + mass(2));
-          xVel(1) = (CRestitution*mass(1)*(yVel(1)-yVel(2)) + mass(2)*yVel(2) + mass(1)*yVel(1))/(mass(2) + mass(1));
+    %     Idée två, funkar sååååådär:
+%           xVel(1) = (CRestitution*mass(2)*(xVel(2)-xVel(1)) + mass(1)*xVel(1) + mass(2)*xVel(2))/(mass(1) + mass(2));
+%           xVel(2) = (CRestitution*mass(1)*(xVel(1)-xVel(2)) + mass(2)*xVel(2) + mass(1)*xVel(1))/(mass(2) + mass(1));
+%             
+%           yVel(1) = (CRestitution*mass(2)*(yVel(2)-yVel(1)) + mass(1)*yVel(1) + mass(2)*yVel(2))/(mass(1) + mass(2));
+%           xVel(1) = (CRestitution*mass(1)*(yVel(1)-yVel(2)) + mass(2)*yVel(2) + mass(1)*yVel(1))/(mass(2) + mass(1));
+        
+    % Idée 3: http://geekswithblogs.net/robp/archive/2008/05/15/adding-collision-detection.aspx
+    % Måste säga att den funkar jävligt fint
+        xPos = tempxPos;
+        yPos = tempyPos;
+        xVel = tempxVel;
+        yVel = tempyVel;
+    
+        x = [xPos(2) yPos(2) 0] - [xPos(1) yPos(1) 0];
+        x = x/norm(x);
+        v1 = [xVel(1) yVel(2) 0];
+        x1 = dot(x, v1);
+        v1x = x*x1;
+        v1y = v1 - v1x;
+        
+        x = -x;
+        v2 = [xVel(2) yVel(2) 0];
+        x2 = dot(x, v2);
+        v2x = x*x2;
+        v2y = v2-v2x;
+        
+        totMass = mass(1) + mass(2);
+        
+        newV1 = (v1x * ((mass(1)-mass(2)) /  totMass)) + (v2x*  ((mass(2)) /totMass))     + v1y;
+        newV2 = (v1x * ((mass(1))       /  totMass)) + (v2x*  ((mass(2)-mass(1))/totMass))+ v2y;
+        
+        xVel = [newV1(1) newV2(1)];
+        yVel = [newV1(2) newV2(2)];
     end
     
     %Hit Ground
@@ -173,5 +197,10 @@ for i = 1:400
     ylim([wSize(3) wSize(4)]);
     grid on; 
     
-    pause(1/1000);
+    tempxPos = xPos;
+    tempyPos = yPos;
+    tempxVel = xVel;
+    tempyVel = yVel;
+    
+    pause(1/100);
 end
