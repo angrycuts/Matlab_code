@@ -11,7 +11,7 @@ wWidth = 0.1;
 
 
 %Materials
-radius = [0.1 0.051];
+radius = [0.1 0.05];
 volume = [4*pi*(radius(1)^3)/3 4*pi*(radius(2)^3)/3];
 area = [4*pi*radius(1)^2 4*pi*radius(2)^2];
 density = [11340 11340];
@@ -29,7 +29,7 @@ tStep = 0.01;
 
 % Initial angle = pi/4 & initial velocity & acceleration= 0
 theta_zero = [-(pi/2) (pi/2)];
-w_zero = [30 -33];
+w_zero = [25 -33];
 a_zero = [0 0];
 
 %% Pendulum
@@ -129,11 +129,30 @@ for i = 1:700
         %Move the objects from eachother
         move = 0.001;
         while(sqrt((xPos(1) - xPos(2))^2 + (yPos(1) - yPos(2))^2) < r2)
-        xPos(1) = xPos(1) - (move * cos(angleOne));
-        yPos(1) = yPos(1) - (move * sin(angleOne));
+            xPos(1) = xPos(1) - (move * cos(angleOne));
+            yPos(1) = yPos(1) - (move * sin(angleOne));
+
+            xPos(2) = xPos(2) - (move * cos(angleTwo));
+            yPos(2) = yPos(2) - (move * sin(angleTwo));
+        end
         
-        xPos(2) = xPos(2) - (move * cos(angleTwo));
-        yPos(2) = yPos(2) - (move * sin(angleTwo));
+        if(yPos(1) < wSize(3)+wWidth + radius(1))
+            yPos(1) = wSize(3)+wWidth + radius(1);
+        end
+        if(yPos(2) < wSize(3)+wWidth + radius(2))
+            yPos(2) = wSize(3)+wWidth + radius(2);
+        end
+        if(xPos(1) < wSize(1)+wWidth + radius(1))
+            xPos(1) = wSize(1)+wWidth + radius(1);
+        end
+        if(xPos(1) > wSize(2)-wWidth - radius(1))
+            xPos(1) = wSize(3)+wWidth + radius(1);
+        end
+        if(xPos(2) < wSize(1)+wWidth + radius(2))
+            xPos(2) = wSize(1)+wWidth + radius(2);
+        end
+        if(xPos(2) > wSize(2)-wWidth - radius(2))
+            xPos(2) = wSize(3)+wWidth + radius(2);
         end
         
         %Find nor.plane
